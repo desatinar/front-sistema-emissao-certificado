@@ -1,13 +1,12 @@
-import { useState } from 'react'
-
+import Login from './pages/Login'
 
 function App() {
   
   return (
     <>
-      <h1>Certificados</h1>
+      <Login />
     </>
-  )
+  );
 }
 
 export default App
