@@ -1,6 +1,8 @@
+import Form from "./components/Form";
+
 const Login = () => {
     return (
-        <div>Página de login</div>
+        <Form />
     );
 }
 
