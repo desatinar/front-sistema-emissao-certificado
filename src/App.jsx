@@ -5,7 +5,7 @@ function App() {
   
   return (
     <>
-      <Signup />
+      Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eligendi inventore modi dolor, voluptatem quae odit. Necessitatibus aspernatur eligendi magni ratione placeat beatae veritatis quaerat recusandae nisi error pariatur, aliquid rem.
     </>
   );
 }

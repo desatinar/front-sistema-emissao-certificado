@@ -1,4 +1,4 @@
-import logo from "../../../assets/logo-responsivo.png";
+import logo from "../../../assets/logo.png";
 
 const Form = () => {
     return (
