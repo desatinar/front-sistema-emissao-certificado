@@ -1,6 +1,9 @@
 import logo from "../../../assets/logo.png";
 
-const Form = () => {
+const Form = ({navigate}) => {
+    const goToLoginPage = () => navigate("/login");
+    const goToDashboardPage = () => navigate("/dashboard");
+
     return (
         <div
             className="d-flex flex-column justify-content-center align-items-center min-vh-100"
@@ -35,9 +38,16 @@ const Form = () => {
                         type="submit" 
                         className="btn w-100 mt-4 text-white"
                         style={{ backgroundColor: '#F9844A', borderColor: '#F9844A' }}
+                        onClick={goToDashboardPage}
                     >Criar uma conta</button>
                     <p className="mt-3 text-center">
-                        Já possui uma conta? <a href="#">Entrar</a>
+                        Já possui uma conta? 
+                        <a 
+                            type="button"
+                            className="btn btn-link"
+                            onClick={goToLoginPage}
+                        >
+                            Entrar</a>
                     </p>
                 </form>
             </div>
