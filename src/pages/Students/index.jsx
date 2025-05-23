@@ -1,9 +1,9 @@
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
-import MainContent from "../Dashboard/components/MainContent";
+import Form from "./components/Form";
 import useProtectedPage from "../../hooks/useProtectedPage";
 
-const Dashboard = () => {
+const Students = () => {
     useProtectedPage();
 
     return (
@@ -11,10 +11,10 @@ const Dashboard = () => {
             <Sidebar />
             <div className="flex-grow-1">
                 <Header />
-                <MainContent />
+                <Form />
             </div>
         </div>
     );
 };
 
-export default Dashboard;
+export default Students;

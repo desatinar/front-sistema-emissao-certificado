@@ -4,7 +4,7 @@ import logo from "../../../assets/logo.png";
 const Form = ({ navigate }) => {
     const [form, setForm] = useState({ email: "", password: "" });
 
-    const emailTest = "teste@gmail.com";
+    const emailTest = "teste@email.com";
     const passwordTest = "123456";
 
     const onChange = (e) => {
