@@ -1,5 +1,4 @@
-
-const Header = () => {
+const Header = ({pageName}) => {
     return (
         <div 
             className="d-flex align-items-center px-3 py-4 border-bottom bg-white "
@@ -15,7 +14,7 @@ const Header = () => {
                 <i className="bi bi-list fs-5"></i>
             </button>
             <h5 className="mb-0 text-secondary me-auto">
-                Dashboard Administrativo
+                {pageName}
             </h5>
             <div className="dropdown">
                 <a
