@@ -71,7 +71,7 @@ const Form = () => {
                 </div>
 
                 <div className="mt-4 d-flex gap-2">
-                    <button type="submit" className="btn fw-semibold px-4" style={{backgroundColor: "#577590", color: "white"}}>
+                    <button type="submit" className="btn fw-semibold px-4" style={{backgroundColor: "#90BE6D", color: "white"}}>
                         Salvar
                     </button>
                     <button
