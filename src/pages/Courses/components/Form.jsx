@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 
+//Cada curso deve conter: nome, carga horária, descrição e data.
+
 function Form() {
-    const [users, setUsers] = useState([
-        { cpf: "000.000.000-00", name: 'Rodrigo Santos', email: 'rodrigo@email.com' },
-        { cpf: "111.111.111-11", name: 'Guilherme Santos', email: 'guilherme@email.com' },
+    const [courses, setCourses] = useState([
+        { id: 1, name: 'Psicologia', hourlyLoad: '10h', description: 'Curso de psicologia', date: new Date().toLocaleString() },
+        { id: 2, name: 'ADS', hourlyLoad: '20h', description: 'Curso de ADS', date: new Date().toLocaleString() },
     ]);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-    const [newUser, setNewUser] = useState({ name: '', email: '' });
-    const [editedUser, setEditedUser] = useState({});
-    const [nextCpf, setNextCpf] = useState("222.222.222-22");
+    const [currentCourse, setCurrentCourse] = useState(null);
+    const [newCourse, setNewCourse] = useState({ name: '', hourlyLoad: '', description: '', date: new Date().toLocaleString() });
+    const [editedCourse, setEditedCourse] = useState({});
+    const [nextId, setNextId] = useState(3);
 
     const buttomColor = {
         green: '#90BE6D',
@@ -21,31 +23,31 @@ function Form() {
     }
 
     const handleCreate = () => {
-        const newUserWithCpf = { cpf: nextCpf, ...newUser };
-        setUsers([...users, newUserWithCpf]);
-        setNextCpf(nextCpf + 1);
-        setNewUser({ name: '', email: '' });
+        const newCourseWithId = { id: nextId, ...newCourse };
+        setCourses([...courses, newCourseWithId]);
+        setNextId(nextId + 1);
+        setEditedCourse({ name: '', hourlyLoad: '', description: '' });
         setShowCreateModal(false);
     };
 
-    const handleEdit = (user) => {
-        setCurrentUser(user);
-        setEditedUser(user);
+    const handleEdit = (course) => {
+        setCurrentCourse(course);
+        setEditedCourse(course);
         setShowEditModal(true);
     };
 
     const saveEdit = () => {
-        setUsers(users.map((u) => (u.cpf === editedUser.cpf ? editedUser : u)));
+        setCourses(courses.map((c) => (c.id === editedCourse.id ? editedCourse : c)));
         setShowEditModal(false);
     };
 
-    const handleDelete = (user) => {
-        setCurrentUser(user);
+    const handleDelete = (course) => {
+        setCurrentCourse(course);
         setShowDeleteModal(true);
     };
 
     const confirmDelete = () => {
-        setUsers(users.filter((u) => u.cpf !== currentUser.cpf));
+        setCourses(courses.filter((c) => c.id !== currentCourse.id));
         setShowDeleteModal(false);
     };
 
@@ -57,7 +59,7 @@ function Form() {
                     style={{ backgroundColor: buttomColor.green, color: 'white' }}
                     onClick={() => setShowCreateModal(true)}
                 >
-                    + Novo Usuário
+                    + Novo Curso
                 </button>
             </div>
 
@@ -66,37 +68,41 @@ function Form() {
                     <table className="table table-bordered table-hover align-middle">
                         <thead className="table-dark sticky-top">
                             <tr>
-                                <th>CPF</th>
+                                <th>ID</th>
                                 <th>Nome</th>
-                                <th>Email</th>
+                                <th>Carga Horária</th>
+                                <th>Descrição</th>
+                                <th>Data</th>
                                 <th className="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {users.length === 0 ? (
+                            {courses.length === 0 ? (
                                 <tr>
                                     <td colSpan="4" className="text-center">
-                                        Nenhum usuário cadastrado.
+                                        Nenhum curso cadastrado.
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
-                                    <tr key={user.cpf}>
-                                        <td>{user.cpf}</td>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
+                                courses.map((course) => (
+                                    <tr key={course.id}>
+                                        <td>{course.id}</td>
+                                        <td>{course.name}</td>
+                                        <td>{course.hourlyLoad}</td>
+                                        <td>{course.description}</td>
+                                        <td>{course.date}</td>
                                         <td className="text-center">
                                             <button
                                                 className="btn btn-sm me-2"
                                                 style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                                onClick={() => handleEdit(user)}
+                                                onClick={() => handleEdit(course)}
                                             >
                                                 Editar
                                             </button>
                                             <button
                                                 className="btn btn-sm"
                                                 style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                                onClick={() => handleDelete(user)}
+                                                onClick={() => handleDelete(course)}
                                             >
                                                 Excluir
                                             </button>
@@ -114,7 +120,7 @@ function Form() {
                     <div className="modal-dialog">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Criar Novo Usuário</h5>
+                                <h5 className="modal-title">Criar Novo Curso</h5>
                                 <button
                                     type="button"
                                     className="btn-close"
@@ -127,20 +133,42 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={newUser.name}
+                                        value={newCourse.name}
                                         onChange={(e) =>
-                                            setNewUser({ ...newUser, name: e.target.value })
+                                            setNewCourse({ ...newCourse, name: e.target.value })
                                         }
                                     />
                                 </div>
                                 <div className="mb-3">
-                                    <label className="form-label">Email</label>
+                                    <label className="form-label">Carga Horária</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         className="form-control"
-                                        value={newUser.email}
+                                        value={newCourse.hourlyLoad}
                                         onChange={(e) =>
-                                            setNewUser({ ...newUser, email: e.target.value })
+                                            setNewCourse({ ...newCourse, hourlyLoad: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Descrição</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={newCourse.description}
+                                        onChange={(e) =>
+                                            setNewCourse({ ...newCourse, description: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Data</label>
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        value={newCourse.date}
+                                        onChange={(e) =>
+                                            setNewCourse({ ...newCourse, date: e.target.value })
                                         }
                                     />
                                 </div>
@@ -171,7 +199,7 @@ function Form() {
                     <div className="modal-dialog">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Editar Usuário</h5>
+                                <h5 className="modal-title">Editar Curso</h5>
                                 <button
                                     type="button"
                                     className="btn-close"
@@ -184,20 +212,42 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={editedUser.name || ''}
+                                        value={editedCourse.name || ''}
                                         onChange={(e) =>
-                                            setEditedUser({ ...editedUser, name: e.target.value })
+                                            setEditedCourse({ ...editedCourse, name: e.target.value })
                                         }
                                     />
                                 </div>
                                 <div className="mb-3">
-                                    <label className="form-label">Email</label>
+                                    <label className="form-label">Carga Horária</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         className="form-control"
-                                        value={editedUser.email || ''}
+                                        value={editedCourse.hourlyLoad || ''}
                                         onChange={(e) =>
-                                            setEditedUser({ ...editedUser, email: e.target.value })
+                                            setEditedCourse({ ...editedCourse, hourlyLoad: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Descrição</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={editedCourse.description || ''}
+                                        onChange={(e) =>
+                                            setEditedCourse({ ...editedCourse, description: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Data</label>
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        value={editedCourse.date || ''}
+                                        onChange={(e) =>
+                                            setEditedCourse({ ...editedCourse, date: e.target.value })
                                         }
                                     />
                                 </div>
@@ -237,8 +287,8 @@ function Form() {
                             </div>
                             <div className="modal-body">
                                 <p>
-                                    Tem certeza que deseja excluir o usuário{' '}
-                                    <strong>{currentUser?.name}</strong>?
+                                    Tem certeza que deseja excluir o curso{' '}
+                                    <strong>{currentCourse?.name}</strong>?
                                 </p>
                             </div>
                             <div className="modal-footer">
