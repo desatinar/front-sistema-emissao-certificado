@@ -1,4 +1,10 @@
-const Header = ({pageName}) => {
+
+const Header = ({ pageName }) => {
+    const logoff = () => {
+        localStorage.removeItem("token");
+        window.location.reload();
+    }
+
     return (
         <div 
             className="d-flex align-items-center px-3 py-4 border-bottom bg-white "
@@ -28,7 +34,7 @@ const Header = ({pageName}) => {
                     <span className="d-none d-sm-inline">Usuário</span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser1">
-                    <li><a className="dropdown-item" href="#">Sair</a></li>
+                    <li><a className="dropdown-item" onClick={logoff}>Sair</a></li>
                 </ul>
             </div>
         </div>

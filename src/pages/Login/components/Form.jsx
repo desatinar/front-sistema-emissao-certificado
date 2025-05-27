@@ -15,7 +15,6 @@ const Form = ({ navigate }) => {
     const login = (e) => {
         e.preventDefault();
         const { email, password } = form;
-        console.log(email, password)
 
         if (email === emailTest && password === passwordTest) {
             localStorage.setItem("token", "teste");
