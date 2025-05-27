@@ -5,6 +5,8 @@ import Login from './pages/Login/index.jsx';
 import Signup from './pages/Signup/index.jsx';
 import Dashboard from './pages/Dashboard/index.jsx';
 import Students from './pages/Students/index.jsx';
+import Certificate from './pages/Certificate/index.jsx';
+import Courses from './pages/Courses/index.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -15,6 +17,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="signup" element={<Signup />} />
         <Route path="dashboard" element={<Dashboard />}/>
         <Route path="alunos" element={<Students />}/>
+        <Route path="certificados" element={<Certificate />}/>
+        <Route path="cursos" element={<Courses />}/>
       </Routes>
     </BrowserRouter>
   </StrictMode>
