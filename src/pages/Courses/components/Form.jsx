@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-//Cada curso deve conter: nome, carga horária, descrição e data.
-
 function Form() {
     const [courses, setCourses] = useState([
         { id: 1, name: 'Psicologia', hourlyLoad: '10h', description: 'Curso de psicologia', date: new Date().toLocaleString() },
@@ -79,7 +77,7 @@ function Form() {
                         <tbody>
                             {courses.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center">
+                                    <td colSpan="6" className="text-center">
                                         Nenhum curso cadastrado.
                                     </td>
                                 </tr>
@@ -92,20 +90,22 @@ function Form() {
                                         <td>{course.description}</td>
                                         <td>{course.date}</td>
                                         <td className="text-center">
-                                            <button
-                                                className="btn btn-sm me-2"
-                                                style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                                onClick={() => handleEdit(course)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className="btn btn-sm"
-                                                style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                                onClick={() => handleDelete(course)}
-                                            >
-                                                Excluir
-                                            </button>
+                                            <div className="d-grid d-sm-flex justify-content-sm-center gap-2">
+                                                <button
+                                                    className="btn btn-sm"
+                                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                                    onClick={() => handleEdit(course)}
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm"
+                                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                                    onClick={() => handleDelete(course)}
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -116,8 +116,8 @@ function Form() {
             </div>
 
             {showCreateModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title">Criar Novo Curso</h5>
@@ -194,9 +194,9 @@ function Form() {
                 </div>
             )}
 
-            {showEditModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+            {showEditModal && editedCourse && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title">Editar Curso</h5>
@@ -245,7 +245,7 @@ function Form() {
                                     <input
                                         type="date"
                                         className="form-control"
-                                        value={editedCourse.date || ''}
+                                        value={editedCourse.date ? new Date(editedCourse.date).toISOString().split('T')[0] : ''}
                                         onChange={(e) =>
                                             setEditedCourse({ ...editedCourse, date: e.target.value })
                                         }
@@ -273,9 +273,9 @@ function Form() {
                 </div>
             )}
 
-            {showDeleteModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+            {showDeleteModal && currentCourse && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title text-danger">Confirmar Exclusão</h5>

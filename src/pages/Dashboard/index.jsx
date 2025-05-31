@@ -10,7 +10,7 @@ const Dashboard = () => {
         <div className="d-flex flex-column flex-lg-row min-vh-100">
             <Sidebar />
             <div className="flex-grow-1">
-                <Header />
+                <Header pageName={"Dashboard"}/>
                 <MainContent />
             </div>
         </div>

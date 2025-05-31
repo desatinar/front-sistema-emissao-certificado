@@ -86,20 +86,22 @@ function Form() {
                                         <td>{user.name}</td>
                                         <td>{user.email}</td>
                                         <td className="text-center">
-                                            <button
-                                                className="btn btn-sm me-2"
-                                                style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                                onClick={() => handleEdit(user)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className="btn btn-sm"
-                                                style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                                onClick={() => handleDelete(user)}
-                                            >
-                                                Excluir
-                                            </button>
+                                            <div className="d-grid d-sm-flex justify-content-sm-center gap-2">
+                                                <button
+                                                    className="btn btn-sm"
+                                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                                    onClick={() => handleEdit(user)}
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm"
+                                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                                    onClick={() => handleDelete(user)}
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -110,8 +112,8 @@ function Form() {
             </div>
 
             {showCreateModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title">Criar Novo Usuário</h5>
@@ -122,6 +124,17 @@ function Form() {
                                 ></button>
                             </div>
                             <div className="modal-body">
+                                <div className="mb-3">
+                                    <label className="form-label">CPF</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={newUser.cpf}
+                                        onChange={(e) =>
+                                            setNewUser({ ...newUser, cpf: e.target.value })
+                                        }
+                                    />
+                                </div>
                                 <div className="mb-3">
                                     <label className="form-label">Nome</label>
                                     <input
@@ -166,9 +179,9 @@ function Form() {
                 </div>
             )}
 
-            {showEditModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+            {showEditModal && editedUser && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title">Editar Usuário</h5>
@@ -179,6 +192,15 @@ function Form() {
                                 ></button>
                             </div>
                             <div className="modal-body">
+                                <div className="mb-3">
+                                    <label className="form-label">CPF</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={editedUser.cpf || ''}
+                                        readOnly
+                                    />
+                                </div>
                                 <div className="mb-3">
                                     <label className="form-label">Nome</label>
                                     <input
@@ -223,9 +245,9 @@ function Form() {
                 </div>
             )}
 
-            {showDeleteModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
+            {showDeleteModal && currentUser && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title text-danger">Confirmar Exclusão</h5>

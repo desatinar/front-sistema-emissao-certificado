@@ -67,7 +67,6 @@ const Form = ({ navigate }) => {
                         type="submit"
                         className="btn w-100 mt-4 text-white"
                         style={{ backgroundColor: '#F9844A', borderColor: '#F9844A' }}
-                        // onClick={(e) => login(e)}
                     >Entrar</button>
                     <p className="mt-3 text-center">
                         Não possui uma conta?
