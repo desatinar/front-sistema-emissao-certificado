@@ -7,12 +7,13 @@ import Dashboard from './pages/Dashboard/index.jsx';
 import Students from './pages/Students/index.jsx';
 import Certificates from './pages/Certificates/index.jsx';
 import Courses from './pages/Courses/index.jsx';
+import Home from './pages/Home/index.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route index element={<Dashboard />}/>
+        <Route index element={<Home />}/>
         <Route path="login" element={<Login/>} />
         <Route path="signup" element={<Signup />} />
         <Route path="dashboard" element={<Dashboard />}/>
