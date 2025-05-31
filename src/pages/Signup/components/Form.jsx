@@ -23,28 +23,28 @@ const Form = () => {
                 <form >
                     <div className="mb-3">
                         <label htmlFor="name" className="form-label">Nome</label>
-                        <input 
-                            type="text" 
-                            className="form-control rounded-3" 
-                            id="name" 
-                            name="name" 
+                        <input
+                            type="text"
+                            className="form-control rounded-3"
+                            id="name"
+                            name="name"
                         />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="email" className="form-label">Email</label>
-                        <input 
-                            type="email" 
-                            className="form-control rounded-3" 
-                            id="email" 
+                        <input
+                            type="email"
+                            className="form-control rounded-3"
+                            id="email"
                             name="email"
                         />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">Senha</label>
-                        <input 
-                            type="password" 
-                            className="form-control rounded-3" 
-                            id="password" 
+                        <input
+                            type="password"
+                            className="form-control rounded-3"
+                            id="password"
                             name="password"
                         />
                         <small className="text-muted">Use 8 ou mais caracteres</small>
@@ -70,6 +70,14 @@ const Form = () => {
                             Entrar
                         </Link>
                     </p>
+                    <div className="text-center mt-3 pt-3 border-top">
+                        <Link
+                            to="/"
+                            className="btn btn-link text-secondary text-decoration-none"
+                        >
+                            Voltar para a página inicial
+                        </Link>
+                    </div>
                 </form>
             </div>
         </div>

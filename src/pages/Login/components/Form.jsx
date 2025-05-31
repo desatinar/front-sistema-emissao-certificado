@@ -84,6 +84,14 @@ const Form = ({ navigate }) => {
                             Criar
                         </Link>
                     </p>
+                    <div className="text-center mt-3 pt-3 border-top">
+                        <Link
+                            to="/"
+                            className="btn btn-link text-secondary text-decoration-none"
+                        >
+                            Voltar para a página inicial
+                        </Link>
+                    </div>
                 </form>
             </div>
         </div>
