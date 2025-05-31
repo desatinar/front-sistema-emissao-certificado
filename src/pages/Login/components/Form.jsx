@@ -1,5 +1,6 @@
 import { useState } from "react";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/green-logo.png";
+import { Link } from "react-router";
 
 const Form = ({ navigate }) => {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -24,40 +25,39 @@ const Form = ({ navigate }) => {
         }
     }
 
-    const goToSignupPage = () => navigate('/signup');
-
     return (
         <div
-            className="d-flex flex-column justify-content-center align-items-center min-vh-100"
-            style={{ background: '#A3B18A' }}
+            className="d-flex justify-content-center align-items-center min-vh-100 p-3"
+            style={{ background: "#A3B18A" }}
         >
-            <img
-                src={logo}
-                alt="Logo"
-                className="mb-4"
-                style={{ maxWidth: '250px' }}
-            />
             <div
-                className="bg-white p-4 rounded shadow"
-                style={{ width: '80%', maxWidth: '500px' }}
+                className="bg-white p-4 p-md-5 rounded-4 shadow"
+                style={{ width: "100%", maxWidth: "420px" }}
             >
-                <h2 className="mb-4 fs-4 text-center">Login</h2>
+                <div className="d-flex justify-content-center mb-4">
+                    <img
+                        src={logo}
+                        alt="Logo Faculdade Esuda"
+                        style={{ maxWidth: "160px" }}
+                    />
+                </div>
+                <h2 className="mb-4 fs-4 text-center fw-semibold">Login</h2>
                 <form onSubmit={(e) => login(e)}>
                     <div className="mb-3">
-                        <label htmlFor="email" className="form-label">Email</label>
+                        <label className="form-label">Email</label>
                         <input
                             type="email"
-                            className="form-control"
+                            className="form-control rounded-3"
                             name="email"
                             value={form.email}
                             onChange={onChange}
                         />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="password" className="form-label">Senha</label>
+                        <label className="form-label">Senha</label>
                         <input
                             type="password"
-                            className="form-control"
+                            className="form-control rounded-3"
                             name="password"
                             value={form.password}
                             onChange={onChange}
@@ -65,17 +65,24 @@ const Form = ({ navigate }) => {
                     </div>
                     <button
                         type="submit"
-                        className="btn w-100 mt-4 text-white"
-                        style={{ backgroundColor: '#F9844A', borderColor: '#F9844A' }}
-                    >Entrar</button>
-                    <p className="mt-3 text-center">
+                        className="btn w-100 text-white rounded-3 mt-3"
+                        style={{
+                            backgroundColor: '#F9844A',
+                            borderColor: '#F9844A',
+                            height: "48px"
+                        }}
+                    >
+                        Entrar
+                    </button>
+                    <p className="mt-4 text-center">
                         Não possui uma conta?
-                        <a
-                            type="button"
-                            className="btn btn-link"
-                            onClick={goToSignupPage}
-                        >Criar
-                        </a>
+                        <Link
+                            to="/signup"
+                            className="btn btn-link ms-1 p-0"
+                            style={{ textDecoration: "none" }}
+                        >
+                            Criar
+                        </Link>
                     </p>
                 </form>
             </div>
