@@ -27,10 +27,10 @@ const Sidebar = () => {
                 className="d-none d-lg-flex flex-column p-3 vh-100 shadow-sm" 
                 style={{ width: '280px', backgroundColor: "#43AA8B" }}
             >
-                <a href="/" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <div className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                     <i className="bi bi-layers-fill me-2 fs-4"></i>
                     <span className="fs-4">Menu</span>
-                </a>
+                </div>
                 <hr style={{ borderColor: 'rgba(255, 255, 255, 0.5)' }} />
                 <div className="flex-grow-1">
                     <NavLinks />

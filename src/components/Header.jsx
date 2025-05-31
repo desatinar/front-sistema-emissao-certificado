@@ -6,7 +6,7 @@ const Header = ({ pageName }) => {
     }
 
     return (
-        <div 
+        <div
             className="d-flex align-items-center px-3 py-4 border-bottom bg-white "
         >
             <button
@@ -31,7 +31,7 @@ const Header = ({ pageName }) => {
                     aria-expanded="false"
                 >
                     <i className="bi bi-person-circle fs-4 me-2"></i>
-                    <span className="d-none d-sm-inline">Usuário</span>
+                    <span className="d-none d-sm-inline">Deslogar?</span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser1">
                     <li><a className="dropdown-item" onClick={logoff}>Sair</a></li>
