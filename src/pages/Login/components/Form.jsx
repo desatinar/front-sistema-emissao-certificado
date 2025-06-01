@@ -1,28 +1,24 @@
 import { useState } from "react";
 import logo from "../../../assets/green-logo.png";
 import { Link } from "react-router";
+import { login } from "../../../api/admin";
 
 const Form = ({ navigate }) => {
     const [form, setForm] = useState({ email: "", password: "" });
-
-    const emailTest = "teste@email.com";
-    const passwordTest = "123456";
+    const [loading, setLoading] = useState(false)
 
     const onChange = (e) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
     }
 
-    const login = (e) => {
-        e.preventDefault();
-        const { email, password } = form;
-
-        if (email === emailTest && password === passwordTest) {
-            localStorage.setItem("token", "teste");
-            navigate("/dashboard");
-        } else {
-            alert("Credenciais incorretas");
+    const handleLogin = (e) => {
+        const loginInfo = {
+            email: form.email,
+            password: form.password,
+            navigate,
         }
+        login(e, loginInfo, setLoading)
     }
 
     return (
@@ -42,7 +38,7 @@ const Form = ({ navigate }) => {
                     />
                 </div>
                 <h2 className="mb-4 fs-4 text-center fw-semibold">Login</h2>
-                <form onSubmit={(e) => login(e)}>
+                <form onSubmit={handleLogin}>
                     <div className="mb-3">
                         <label className="form-label">Email</label>
                         <input
@@ -51,6 +47,8 @@ const Form = ({ navigate }) => {
                             name="email"
                             value={form.email}
                             onChange={onChange}
+                            disabled={loading}
+                            required
                         />
                     </div>
                     <div className="mb-3">
@@ -61,6 +59,8 @@ const Form = ({ navigate }) => {
                             name="password"
                             value={form.password}
                             onChange={onChange}
+                            disabled={loading}
+                            required
                         />
                     </div>
                     <button
@@ -71,19 +71,17 @@ const Form = ({ navigate }) => {
                             borderColor: '#F9844A',
                             height: "48px"
                         }}
+                        disabled={loading}
                     >
+                        {loading ? (
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+                        ) : null}
                         Entrar
                     </button>
-                    <p className="mt-4 text-center">
-                        Não possui uma conta?
-                        <Link
-                            to="/signup"
-                            className="btn btn-link ms-1 p-0"
-                            style={{ textDecoration: "none" }}
-                        >
-                            Criar
-                        </Link>
-                    </p>
                     <div className="text-center mt-3 pt-3 border-top">
                         <Link
                             to="/"

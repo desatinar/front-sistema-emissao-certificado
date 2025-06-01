@@ -11,22 +11,26 @@ const NavLinks = () => {
             </li>
             <li className="nav-item">
                 <Link to="/cursos" className="nav-link text-white">
-                    <i className="bi bi-book me-2"></i> Cursos
+                    <i className="bi bi-book me-2"></i> Gestão de Cursos
                 </Link>
             </li>
             <li className="nav-item">
                 <Link to="/alunos" className="nav-link text-white">
-                    <i className="bi bi-people-fill me-2"></i> Alunos
+                    <i className="bi bi-people-fill me-2"></i> Gestão de Estudantes
                 </Link>
             </li>
             <li className="nav-item">
                 <Link to="/certificados" className="nav-link text-white">
-                    <i className="bi bi-patch-check-fill me-2"></i> Certificados
+                    <i className="bi bi-patch-check-fill me-2"></i> Gestão de Certificados
+                </Link>
+            </li>
+            <li className="nav-item">
+                <Link to="/admin" className="nav-link text-white">
+                    <i className="bi bi-patch-check-fill me-2"></i> Gestão de Administradores
                 </Link>
             </li>
         </ul>
     );
 }
-
 
 export default NavLinks;
