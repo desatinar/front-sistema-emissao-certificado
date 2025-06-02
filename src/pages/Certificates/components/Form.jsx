@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getAllStudents, getAllCourses, issueCertificate } from '../../../api/admin';
+import { getAllStudents, getAllCourses, issueCertificate, getAllCertificates } from '../../../api/admin';
 
 const Form = () => {
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [certificates, setCertificates] = useState([]);
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [selectedCourseId, setSelectedCourseId] = useState('');
     const [loading, setLoading] = useState(false);
@@ -23,11 +24,15 @@ const Form = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const studentsData = await getAllStudents();
-                const coursesData = await getAllCourses();
+                const [studentsData, coursesData, certificatesData] = await Promise.all([
+                    getAllStudents(),
+                    getAllCourses(),
+                    getAllCertificates()
+                ]);
 
                 setStudents(studentsData || []);
                 setCourses(coursesData || []);
+                setCertificates(certificatesData || []);
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 setErrorMessage(`Erro ao carregar dados iniciais: ${error.message || 'Serviço indisponível.'}`);
@@ -68,10 +73,14 @@ const Form = () => {
                         id: response.certificate.id,
                         studentName: student.full_name,
                         courseName: course.name,
+                        validationCode: response.certificate.unique_validation_code
                     });
                     setShowSuccessModal(true);
-                    setSelectedStudentId(''); 
-                    setSelectedCourseId(''); 
+                    setSelectedStudentId('');
+                    setSelectedCourseId('');
+
+                    const updatedCertificates = await getAllCertificates();
+                    setCertificates(updatedCertificates || []);
                 } else {
                     throw new Error("Não foi possível encontrar os dados do estudante ou curso localmente.");
                 }
@@ -89,7 +98,7 @@ const Form = () => {
     };
 
     return (
-        <div className="container mt-5">
+        <div className="min-vh-100 p-3" >
             {showErrorAlert && (
                 <div className="alert alert-danger alert-dismissible fade show mb-3" role="alert">
                     <strong>Erro!</strong> {errorMessage}
@@ -102,62 +111,106 @@ const Form = () => {
                 </div>
             )}
 
-            <div className="card shadow-sm">
-                <div className="card-body p-4">
-                    <h2 className="card-title text-center mb-4 fs-4 fw-semibold" style={{ color: '#343a40' }}>
-                        Emitir Certificado
-                    </h2>
+            <div className="row g-4">
+                <div className="col-12 col-md-6">
+                    <div className="card shadow-sm h-100" style={{ backgroundColor: '#FFFFFF' }}>
+                        <div className="card-body p-4 d-flex flex-column">
+                            <h2 className="card-title text-center mb-4 fs-4 fw-semibold" style={{ color: '#343a40' }}>
+                                Emitir Certificado
+                            </h2>
 
-                    <div className="mb-3">
-                        <label htmlFor="studentSelect" className="form-label">Estudante</label>
-                        <select
-                            id="studentSelect"
-                            className="form-select"
-                            value={selectedStudentId}
-                            onChange={(e) => setSelectedStudentId(e.target.value)}
-                            disabled={loading}
-                        >
-                            <option value="">Selecione um estudante</option>
-                            {students.map((student) => (
-                                <option key={student.id} value={student.id}>
-                                    {student.full_name}
-                                </option>
-                            ))}
-                        </select>
+                            <div className="mb-3 flex-grow-1">
+                                <label htmlFor="studentSelect" className="form-label">Estudante</label>
+                                <select
+                                    id="studentSelect"
+                                    className="form-select"
+                                    value={selectedStudentId}
+                                    onChange={(e) => setSelectedStudentId(e.target.value)}
+                                    disabled={loading}
+                                >
+                                    <option value="">Selecione um estudante</option>
+                                    {students.map((student) => (
+                                        <option key={student.id} value={student.id}>
+                                            {student.full_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-4 flex-grow-1">
+                                <label htmlFor="courseSelect" className="form-label">Curso</label>
+                                <select
+                                    id="courseSelect"
+                                    className="form-select"
+                                    value={selectedCourseId}
+                                    onChange={(e) => setSelectedCourseId(e.target.value)}
+                                    disabled={loading}
+                                >
+                                    <option value="">Selecione um curso</option>
+                                    {courses.map((course) => (
+                                        <option key={course.id} value={course.id}>
+                                            {course.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <button
+                                className="btn w-100 text-white mt-auto"
+                                style={{
+                                    backgroundColor: buttonColor.green,
+                                    height: '48px'
+                                }}
+                                onClick={handleIssueCertificate}
+                                disabled={loading || !selectedStudentId || !selectedCourseId}
+                            >
+                                {loading && !certificateDetails ? (
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                ) : null}
+                                Emitir Certificado
+                            </button>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="mb-4">
-                        <label htmlFor="courseSelect" className="form-label">Curso</label>
-                        <select
-                            id="courseSelect"
-                            className="form-select"
-                            value={selectedCourseId}
-                            onChange={(e) => setSelectedCourseId(e.target.value)}
-                            disabled={loading}
-                        >
-                            <option value="">Selecione um curso</option>
-                            {courses.map((course) => (
-                                <option key={course.id} value={course.id}>
-                                    {course.name}
-                                </option>
-                            ))}
-                        </select>
+                <div className="col-12 col-md-6">
+                    <div className="card shadow-sm h-100" style={{ backgroundColor: '#FFFFFF' }}>
+                        <div className="card-body p-4 d-flex flex-column">
+                            <h3 className="card-title text-center mb-4 fs-5 fw-semibold" style={{ color: '#343a40' }}>
+                                Certificados Emitidos
+                            </h3>
+                            {certificates.length > 0 ? (
+                                <div className="table-responsive flex-grow-1">
+                                    <table className="table table-bordered table-hover align-middle">
+                                        <thead className="table-dark" style={{ backgroundColor: '#343a40', color: '#FFFFFF' }}>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Estudante</th>
+                                                <th>Curso</th>
+                                                <th>Código de Validação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {certificates.map((certificate) => {
+                                                const student = students.find(s => s.id === certificate.student_id);
+                                                const course = courses.find(c => c.id === certificate.course_id);
+                                                return (
+                                                    <tr key={certificate.id}>
+                                                        <td>{certificate.id}</td>
+                                                        <td>{student ? student.full_name : 'Desconhecido'}</td>
+                                                        <td>{course ? course.name : 'Desconhecido'}</td>
+                                                        <td>{certificate.unique_validation_code || 'N/A'}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <p className="text-center text-muted flex-grow-1">Nenhum certificado emitido.</p>
+                            )}
+                        </div>
                     </div>
-
-                    <button
-                        className="btn w-100 text-white"
-                        style={{
-                            backgroundColor: buttonColor.green,
-                            height: '48px'
-                        }}
-                        onClick={handleIssueCertificate}
-                        disabled={loading || !selectedStudentId || !selectedCourseId} 
-                    >
-                        {loading && !certificateDetails ? (
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        ) : null}
-                        Emitir Certificado
-                    </button>
                 </div>
             </div>
 
@@ -172,7 +225,7 @@ const Form = () => {
                                     className="btn-close"
                                     onClick={() => {
                                         setShowSuccessModal(false);
-                                        setCertificateDetails(null); 
+                                        setCertificateDetails(null);
                                     }}
                                     aria-label="Close"
                                 ></button>
@@ -181,6 +234,7 @@ const Form = () => {
                                 <p><strong>ID do Certificado:</strong> {certificateDetails.id}</p>
                                 <p><strong>Estudante:</strong> {certificateDetails.studentName}</p>
                                 <p><strong>Curso:</strong> {certificateDetails.courseName}</p>
+                                <p><strong>Código de Validação:</strong> {certificateDetails.validationCode}</p>
                             </div>
                             <div className="modal-footer">
                                 <button

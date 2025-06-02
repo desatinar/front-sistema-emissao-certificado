@@ -28,20 +28,12 @@ const Home = () => {
                         Acesso Administrativo
                     </Link>
                     <Link
-                        to="/certificados"
+                        to="/certificados/validar"
                         className="btn fw-semibold py-3 fs-6 shadow d-flex align-items-center justify-content-center gap-2 rounded-3"
                         style={{ background: "#43AA8B", color: "white" }}
                     >
                         <i className="bi bi-file-earmark-text-fill"></i>
-                        Consultar Certificado
-                    </Link>
-                    <Link
-                        to="/certificados/validar"
-                        className="btn fw-semibold py-3 fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2 rounded-3"
-                        style={{ background: "#F9C74F", color: "white" }}
-                    >
-                        <i className="bi bi-patch-check-fill"></i>
-                        Validar Certificado
+                        Consultar e Imprimir Certificados
                     </Link>
                 </div>
             </div>

@@ -8,6 +8,7 @@ import Certificates from './pages/Certificates/index.jsx';
 import Courses from './pages/Courses/index.jsx';
 import Home from './pages/Home/index.jsx';
 import Admin from './pages/Admin/index.jsx';
+import ValidateCertificate from './pages/Validate/index.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="alunos" element={<Students />}/>
         <Route path="certificados" element={<Certificates />}/>
         <Route path="cursos" element={<Courses />}/>
+        <Route path="certificados/validar" element={<ValidateCertificate/>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

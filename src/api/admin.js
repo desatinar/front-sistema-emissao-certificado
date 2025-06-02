@@ -311,12 +311,34 @@ export const issueCertificate = async (certificateData, setLoading) => {
     }
 };
 
+export const getCertificateDetails = async (code, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    } 
+    try {
+        const response = await fetch(`${BASE_URL}public/certificates/download/${code}`, {
+            method: "GET",
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Código inválido.');
+        }
+        return true;
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
 export const getAllAdmins = async (setLoading) => {
     if (setLoading) {
         setLoading(true);
     } 
     try {
-        const response = await fetch(`${BASE_URL}/admin/admins`, {
+        const response = await fetch(`${BASE_URL}admin/admins`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -337,7 +359,7 @@ export const createAdmin = async (adminData, setLoading) => {
         setLoading(true);
     } 
     try {
-        const response = await fetch(`${BASE_URL}/admin/admins`, {
+        const response = await fetch(`${BASE_URL}admin/admins`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -360,7 +382,7 @@ export const updateAdmin = async (adminId, adminData, setLoading) => {
     }
         
     try {
-        const response = await fetch(`${BASE_URL}/admin/admins/${adminId}`, {
+        const response = await fetch(`${BASE_URL}admin/admins/${adminId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -383,7 +405,7 @@ export const deleteAdmin = async (adminId, setLoading) => {
     } 
         
     try {
-        const response = await fetch(`${BASE_URL}/admin/admins/${adminId}`, {
+        const response = await fetch(`${BASE_URL}admin/admins/${adminId}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -396,5 +418,76 @@ export const deleteAdmin = async (adminId, setLoading) => {
         if (setLoading) {
             setLoading(false);
         }
+    }
+};
+
+export const downloadCertificatePdf = async (code, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    } 
+    try {
+        const response = await fetch(`${BASE_URL}certificates/download/${code}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) {
+            throw new Error(await response.text());
+        } 
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filename = response.headers.get('content-disposition')?.split('filename=')[1] || `certificate_${code}.pdf`;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
+export const getAllCertificates = async (setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+    try {
+        const response = await fetch(`${BASE_URL}admin/certificates`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+        if (!response.ok) {
+            throw new Error(await response.text());
+        } 
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
+export const fetchCertificatePdf = async (code, setLoading) => {
+    if (setLoading) setLoading(true);
+    try {
+        const response = await fetch(`${BASE_URL}public/certificates/download/${code}`, {
+            method: "GET",
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const blob = await response.blob();
+        return blob;
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) setLoading(false);
     }
 };

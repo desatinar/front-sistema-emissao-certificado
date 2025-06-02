@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { getAllAdmins, createAdmin, updateAdmin, deleteAdmin } from '../../../api/admin'; 
+import { getAllAdmins, createAdmin, updateAdmin, deleteAdmin } from '../../../api/admin';
 import { validateEmail } from '../../../utils/utils';
 
 const Form = () => {
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(''); 
+    const [successMessage, setSuccessMessage] = useState('');
     const [showErrorAlert, setShowErrorAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    const [updateAdminsTrigger, setUpdateAdminsTrigger] = useState(0); 
+    const [updateAdminsTrigger, setUpdateAdminsTrigger] = useState(0);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [currentAdmin, setCurrentAdmin] = useState(null); 
+    const [currentAdmin, setCurrentAdmin] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ email: '', password: '' });
     const [editedAdmin, setEditedAdmin] = useState({ id: null, email: '', password: '' });
 
@@ -57,7 +57,7 @@ const Form = () => {
 
         setLoading(true);
         try {
-            await createAdmin(newAdmin); 
+            await createAdmin(newAdmin);
             setNewAdmin({ email: '', password: '' });
             setShowCreateModal(false);
             setSuccessMessage("Administrador criado com sucesso!");
@@ -99,11 +99,11 @@ const Form = () => {
                 dataToUpdate.password = editedAdmin.password;
             }
 
-            await updateAdmin(editedAdmin.id, dataToUpdate); 
+            await updateAdmin(editedAdmin.id, dataToUpdate);
             setShowEditModal(false);
             setSuccessMessage("Administrador atualizado com sucesso!");
             setShowSuccessAlert(true);
-            setUpdateAdminsTrigger(prev => prev + 1); 
+            setUpdateAdminsTrigger(prev => prev + 1);
             setTimeout(() => setShowSuccessAlert(false), 3000);
         } catch (error) {
             setErrorMessage(error.response?.data?.message || error.message || "Erro ao atualizar administrador.");
@@ -127,7 +127,7 @@ const Form = () => {
             setShowDeleteModal(false);
             setSuccessMessage("Administrador excluído com sucesso!");
             setShowSuccessAlert(true);
-            setUpdateAdminsTrigger(prev => prev + 1); 
+            setUpdateAdminsTrigger(prev => prev + 1);
             setTimeout(() => setShowSuccessAlert(false), 3000);
         } catch (error) {
             setErrorMessage(error.response?.data?.message || error.message || "Erro ao excluir administrador.");
@@ -154,7 +154,7 @@ const Form = () => {
             )}
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Gerenciar Administradores</h2>
+                <div></div>
                 <button
                     className="btn"
                     style={{ backgroundColor: buttonColor.green, color: 'white' }}
