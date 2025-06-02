@@ -2,7 +2,7 @@
 const Header = ({ pageName }) => {
     const logoff = () => {
         localStorage.removeItem("isLoggedIn");
-        window.location.reload();
+        window.location.href = "/";
     }
 
     return (
