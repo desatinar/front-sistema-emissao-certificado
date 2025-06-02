@@ -27,11 +27,18 @@ export const login = async (e, loginInfo, setLoading) => {
                 navigate("/dashboard");
             }
         } else {
-            const errorMessage = data.message || `Erro no login: ${response.status} ${response.statusText}`;
+            let errorData = {};
+            try {
+                errorData = await response.json();
+            } catch (parseError) {
+                console.error("Falha ao parsear corpo da resposta de erro JSON:", parseError);
+            }
+            const errorMessage = errorData.message || `Erro ${response.status}: ${response.statusText || 'Ocorreu um problema no login.'}`;
             alert(`Falha no login: ${errorMessage}`);
         }
 
     } catch (err) {
+        console.error("Erro na requisição de login (bloco catch):", err);
         alert(`Erro na requisição: ${err.message || "Não foi possível conectar ao servidor."}`);
     } finally {
         if (setLoading) {
@@ -314,7 +321,7 @@ export const issueCertificate = async (certificateData, setLoading) => {
 export const getCertificateDetails = async (code, setLoading) => {
     if (setLoading) {
         setLoading(true);
-    } 
+    }
     try {
         const response = await fetch(`${BASE_URL}public/certificates/download/${code}`, {
             method: "GET",
@@ -329,14 +336,14 @@ export const getCertificateDetails = async (code, setLoading) => {
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
 export const getAllAdmins = async (setLoading) => {
     if (setLoading) {
         setLoading(true);
-    } 
+    }
     try {
         const response = await fetch(`${BASE_URL}admin/admins`, {
             method: "GET",
@@ -350,14 +357,14 @@ export const getAllAdmins = async (setLoading) => {
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
 export const createAdmin = async (adminData, setLoading) => {
     if (setLoading) {
         setLoading(true);
-    } 
+    }
     try {
         const response = await fetch(`${BASE_URL}admin/admins`, {
             method: "POST",
@@ -372,7 +379,7 @@ export const createAdmin = async (adminData, setLoading) => {
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
@@ -380,7 +387,7 @@ export const updateAdmin = async (adminId, adminData, setLoading) => {
     if (setLoading) {
         setLoading(true);
     }
-        
+
     try {
         const response = await fetch(`${BASE_URL}admin/admins/${adminId}`, {
             method: "PUT",
@@ -395,15 +402,15 @@ export const updateAdmin = async (adminId, adminData, setLoading) => {
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
 export const deleteAdmin = async (adminId, setLoading) => {
     if (setLoading) {
         setLoading(true);
-    } 
-        
+    }
+
     try {
         const response = await fetch(`${BASE_URL}admin/admins/${adminId}`, {
             method: "DELETE",
@@ -424,7 +431,7 @@ export const deleteAdmin = async (adminId, setLoading) => {
 export const downloadCertificatePdf = async (code, setLoading) => {
     if (setLoading) {
         setLoading(true);
-    } 
+    }
     try {
         const response = await fetch(`${BASE_URL}certificates/download/${code}`, {
             method: "GET",
@@ -432,7 +439,7 @@ export const downloadCertificatePdf = async (code, setLoading) => {
         });
         if (!response.ok) {
             throw new Error(await response.text());
-        } 
+        }
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -449,7 +456,7 @@ export const downloadCertificatePdf = async (code, setLoading) => {
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
@@ -465,14 +472,14 @@ export const getAllCertificates = async (setLoading) => {
         });
         if (!response.ok) {
             throw new Error(await response.text());
-        } 
+        }
         return await response.json();
     } catch (err) {
         throw err;
     } finally {
         if (setLoading) {
             setLoading(false);
-        } 
+        }
     }
 };
 
