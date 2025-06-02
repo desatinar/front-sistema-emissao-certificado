@@ -1,63 +1,157 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { addStudent, getAllStudents, editStudent, deleteStudent } from '../../../api/admin';
+import { validateCpf } from '../../../utils/utils';
 
-function Form() {
-    const [users, setUsers] = useState([
-        { cpf: "000.000.000-00", name: 'Rodrigo Santos', email: 'rodrigo@email.com' },
-        { cpf: "111.111.111-11", name: 'Guilherme Santos', email: 'guilherme@email.com' },
-    ]);
-
+const Form = () => {
+    const [students, setStudents] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [updateStudents, setUpdateStudents] = useState(0);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-    const [newUser, setNewUser] = useState({ name: '', email: '' });
-    const [editedUser, setEditedUser] = useState({});
-    const [nextCpf, setNextCpf] = useState("222.222.222-22");
+    const [currentStudent, setCurrentStudent] = useState(null);
+    const [newStudent, setNewStudent] = useState({ name: '', email: '', cpf: '' });
+    const [editedStudent, setEditedStudent] = useState({});
 
-    const buttomColor = {
+    const buttonColor = {
         green: '#90BE6D',
         red: '#F94144',
         blue: '#577590'
-    }
-
-    const handleCreate = () => {
-        const newUserWithCpf = { cpf: nextCpf, ...newUser };
-        setUsers([...users, newUserWithCpf]);
-        setNextCpf(nextCpf + 1);
-        setNewUser({ name: '', email: '' });
-        setShowCreateModal(false);
     };
 
-    const handleEdit = (user) => {
-        setCurrentUser(user);
-        setEditedUser(user);
+    useEffect(() => {
+        const fetchStudents = async () => {
+            try {
+                const data = await getAllStudents(setLoading);
+                setStudents(data);
+            } catch (error) {
+                setErrorMessage(`Erro ao buscar estudantes: ${error.message}`);
+                setShowErrorAlert(true);
+                setTimeout(() => setShowErrorAlert(false), 3000);
+            }
+        };
+        fetchStudents();
+    }, [updateStudents]);
+
+    const handleCreate = async () => {
+        const cpfError = validateCpf(newStudent.cpf);
+        if (cpfError) {
+            setErrorMessage(cpfError);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+        if (!newStudent.name || !newStudent.email) {
+            setErrorMessage("Nome e email são obrigatórios");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+        try {
+            const createdStudent = await addStudent(newStudent, setLoading);
+            setStudents([...students, createdStudent]);
+            setNewStudent({ name: '', email: '', cpf: '' });
+            setShowCreateModal(false);
+            setShowSuccessAlert(true);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.message || "Erro ao criar estudante");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
+    };
+
+    const handleEdit = (student) => {
+        setCurrentStudent(student);
+        setEditedStudent({
+            id: student.id,
+            name: student.full_name,
+            email: student.email,
+            cpf: student.cpf,
+        });
         setShowEditModal(true);
     };
 
-    const saveEdit = () => {
-        setUsers(users.map((u) => (u.cpf === editedUser.cpf ? editedUser : u)));
-        setShowEditModal(false);
+    const saveEdit = async () => {
+        const cpfError = validateCpf(editedStudent.cpf);
+        if (cpfError) {
+            setErrorMessage(cpfError);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+        try {
+            const updatedStudent = await editStudent(editedStudent, setLoading);
+            setStudents(students.map((s) => (s.id === updatedStudent.id ? { ...s, ...updatedStudent, full_name: updatedStudent.full_name } : s)));
+            setShowEditModal(false);
+            setShowSuccessAlert(true);
+            setUpdateStudents(updateStudents + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.message || "Erro ao atualizar estudante");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
     };
 
-    const handleDelete = (user) => {
-        setCurrentUser(user);
+    const handleDelete = (student) => {
+        setCurrentStudent(student);
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = () => {
-        setUsers(users.filter((u) => u.cpf !== currentUser.cpf));
-        setShowDeleteModal(false);
+    const confirmDelete = async () => {
+        try {
+            await deleteStudent(currentStudent.id, setLoading);
+            setStudents(students.filter((s) => s.id !== currentStudent.id));
+            setShowDeleteModal(false);
+            setShowSuccessAlert(true);
+            setUpdateStudents(updateStudents + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.message || "Erro ao excluir estudante");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
     };
 
     return (
         <div className="container mt-5">
+            {showSuccessAlert && (
+                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Sucesso!</strong> Operação realizada com sucesso.
+                    <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                        onClick={() => setShowSuccessAlert(false)}
+                    ></button>
+                </div>
+            )}
+            {showErrorAlert && (
+                <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Erro!</strong> {errorMessage}
+                    <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                        onClick={() => setShowErrorAlert(false)}
+                    ></button>
+                </div>
+            )}
+
             <div className="d-flex justify-content-end mb-3">
                 <button
                     className="btn"
-                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                     onClick={() => setShowCreateModal(true)}
+                    disabled={loading}
                 >
-                    + Novo Usuário
+                    + Novo Estudante
                 </button>
             </div>
 
@@ -73,31 +167,41 @@ function Form() {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.length === 0 ? (
+                            {loading ? (
                                 <tr>
                                     <td colSpan="4" className="text-center">
-                                        Nenhum usuário cadastrado.
+                                        <div className="spinner-border text-success" role="status">
+                                            <span className="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : students.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="text-center">
+                                        Nenhum estudante cadastrado.
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
-                                    <tr key={user.cpf}>
-                                        <td>{user.cpf}</td>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
+                                students.map((student) => (
+                                    <tr key={student.id}>
+                                        <td>{student.cpf}</td>
+                                        <td>{student.full_name}</td>
+                                        <td>{student.email}</td>
                                         <td className="text-center">
                                             <div className="d-grid d-sm-flex justify-content-sm-center gap-2">
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                                    onClick={() => handleEdit(user)}
+                                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
+                                                    onClick={() => handleEdit(student)}
+                                                    disabled={loading}
                                                 >
                                                     Editar
                                                 </button>
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                                    onClick={() => handleDelete(user)}
+                                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
+                                                    onClick={() => handleDelete(student)}
+                                                    disabled={loading}
                                                 >
                                                     Excluir
                                                 </button>
@@ -116,11 +220,12 @@ function Form() {
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Criar Novo Usuário</h5>
+                                <h5 className="modal-title">Criar Novo Estudante</h5>
                                 <button
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowCreateModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
@@ -129,10 +234,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={newUser.cpf}
+                                        value={newStudent.cpf}
                                         onChange={(e) =>
-                                            setNewUser({ ...newUser, cpf: e.target.value })
+                                            setNewStudent({ ...newStudent, cpf: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -140,10 +246,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={newUser.name}
+                                        value={newStudent.name}
                                         onChange={(e) =>
-                                            setNewUser({ ...newUser, name: e.target.value })
+                                            setNewStudent({ ...newStudent, name: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -151,26 +258,32 @@ function Form() {
                                     <input
                                         type="email"
                                         className="form-control"
-                                        value={newUser.email}
+                                        value={newStudent.email}
                                         onChange={(e) =>
-                                            setNewUser({ ...newUser, email: e.target.value })
+                                            setNewStudent({ ...newStudent, email: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                     onClick={() => setShowCreateModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                                     onClick={handleCreate}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Criar
                                 </button>
                             </div>
@@ -179,16 +292,17 @@ function Form() {
                 </div>
             )}
 
-            {showEditModal && editedUser && (
+            {showEditModal && editedStudent && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Editar Usuário</h5>
+                                <h5 className="modal-title">Editar Estudante</h5>
                                 <button
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowEditModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
@@ -197,8 +311,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={editedUser.cpf || ''}
-                                        readOnly
+                                        value={editedStudent.cpf || ''}
+                                        onChange={(e) =>
+                                            setEditedStudent({ ...editedStudent, cpf: e.target.value })
+                                        }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -206,10 +323,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={editedUser.name || ''}
+                                        value={editedStudent.name || ''}
                                         onChange={(e) =>
-                                            setEditedUser({ ...editedUser, name: e.target.value })
+                                            setEditedStudent({ ...editedStudent, name: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -217,26 +335,32 @@ function Form() {
                                     <input
                                         type="email"
                                         className="form-control"
-                                        value={editedUser.email || ''}
+                                        value={editedStudent.email || ''}
                                         onChange={(e) =>
-                                            setEditedUser({ ...editedUser, email: e.target.value })
+                                            setEditedStudent({ ...editedStudent, email: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                     onClick={() => setShowEditModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                                     onClick={saveEdit}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Salvar
                                 </button>
                             </div>
@@ -245,7 +369,7 @@ function Form() {
                 </div>
             )}
 
-            {showDeleteModal && currentUser && (
+            {showDeleteModal && currentStudent && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
@@ -255,27 +379,33 @@ function Form() {
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowDeleteModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
                                 <p>
-                                    Tem certeza que deseja excluir o usuário{' '}
-                                    <strong>{currentUser?.name}</strong>?
+                                    Tem certeza que deseja excluir o estudante{' '}
+                                    <strong>{currentStudent?.full_name}</strong>?
                                 </p>
                             </div>
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.blue, color: 'white' }}
                                     onClick={() => setShowDeleteModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                     onClick={confirmDelete}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Excluir
                                 </button>
                             </div>

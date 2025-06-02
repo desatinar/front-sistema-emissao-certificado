@@ -176,3 +176,225 @@ export const deleteCourse = async (courseId, setLoading) => {
         }
     }
 };
+
+export const addStudent = async (student, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+
+    try {
+        const response = await fetch(`${BASE_URL}admin/students`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                full_name: student.name,
+                email: student.email,
+                cpf: student.cpf,
+            }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+export const getAllStudents = async (setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+    try {
+        const response = await fetch(`${BASE_URL}admin/students`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+export const editStudent = async (student, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+    try {
+        const response = await fetch(`${BASE_URL}admin/students/${student.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                full_name: student.name,
+                email: student.email,
+                cpf: student.cpf,
+            }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+export const deleteStudent = async (studentId, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+    try {
+        const response = await fetch(`${BASE_URL}admin/students/${studentId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+export const issueCertificate = async (certificateData, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+
+    try {
+        const response = await fetch(`${BASE_URL}admin/certificates/issue`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(certificateData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+export const getAllAdmins = async (setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    } 
+    try {
+        const response = await fetch(`${BASE_URL}/admin/admins`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
+export const createAdmin = async (adminData, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    } 
+    try {
+        const response = await fetch(`${BASE_URL}/admin/admins`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(adminData),
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
+export const updateAdmin = async (adminId, adminData, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    }
+        
+    try {
+        const response = await fetch(`${BASE_URL}/admin/admins/${adminId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(adminData),
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        } 
+    }
+};
+
+export const deleteAdmin = async (adminId, setLoading) => {
+    if (setLoading) {
+        setLoading(true);
+    } 
+        
+    try {
+        const response = await fetch(`${BASE_URL}/admin/admins/${adminId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return await response.json();
+    } catch (err) {
+        throw err;
+    } finally {
+        if (setLoading) {
+            setLoading(false);
+        }
+    }
+};

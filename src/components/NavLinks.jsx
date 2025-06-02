@@ -5,7 +5,7 @@ const NavLinks = () => {
     return (
         <ul className="nav flex-column">
             <li className="nav-item">
-                <Link to="/" className="nav-link active text-white" aria-current="page">
+                <Link to="/dashboard" className="nav-link active text-white" aria-current="page">
                     <i className="bi bi-speedometer2 me-2"></i> Dashboard
                 </Link>
             </li>

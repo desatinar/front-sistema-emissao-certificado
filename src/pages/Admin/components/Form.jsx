@@ -1,63 +1,170 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getAllAdmins, createAdmin, updateAdmin, deleteAdmin } from '../../../api/admin'; 
+import { validateEmail } from '../../../utils/utils';
 
-function Form() {
-    const [users, setUsers] = useState([
-        { cpf: "000.000.000-00", name: 'Rodrigo Santos', email: 'rodrigo@email.com' },
-        { cpf: "111.111.111-11", name: 'Guilherme Santos', email: 'guilherme@email.com' },
-    ]);
-
+const Form = () => {
+    const [admins, setAdmins] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(''); 
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [updateAdminsTrigger, setUpdateAdminsTrigger] = useState(0); 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-    const [newUser, setNewUser] = useState({ name: '', email: '' });
-    const [editedUser, setEditedUser] = useState({});
-    const [nextCpf, setNextCpf] = useState("222.222.222-22");
+    const [currentAdmin, setCurrentAdmin] = useState(null); 
+    const [newAdmin, setNewAdmin] = useState({ email: '', password: '' });
+    const [editedAdmin, setEditedAdmin] = useState({ id: null, email: '', password: '' });
 
-    const buttomColor = {
+    const buttonColor = {
         green: '#90BE6D',
         red: '#F94144',
         blue: '#577590'
-    }
-
-    const handleCreate = () => {
-        const newUserWithCpf = { cpf: nextCpf, ...newUser };
-        setUsers([...users, newUserWithCpf]);
-        setNextCpf(nextCpf + 1);
-        setNewUser({ name: '', email: '' });
-        setShowCreateModal(false);
     };
 
-    const handleEdit = (user) => {
-        setCurrentUser(user);
-        setEditedUser(user);
+    useEffect(() => {
+        const fetchAdmins = async () => {
+            setLoading(true);
+            try {
+                const data = await getAllAdmins();
+                setAdmins(data || []);
+            } catch (error) {
+                setErrorMessage(`Erro ao buscar administradores: ${error.message || 'Serviço indisponível.'}`);
+                setShowErrorAlert(true);
+                setTimeout(() => setShowErrorAlert(false), 5000);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAdmins();
+    }, [updateAdminsTrigger]);
+
+    const handleCreate = async () => {
+        const emailError = validateEmail(newAdmin.email);
+        if (emailError) {
+            setErrorMessage(emailError);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+        if (!newAdmin.password) {
+            setErrorMessage("Senha é obrigatória para criar um novo admin.");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await createAdmin(newAdmin); 
+            setNewAdmin({ email: '', password: '' });
+            setShowCreateModal(false);
+            setSuccessMessage("Administrador criado com sucesso!");
+            setShowSuccessAlert(true);
+            setUpdateAdminsTrigger(prev => prev + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || error.message || "Erro ao criar administrador.");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 5000);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEdit = (admin) => {
+        setCurrentAdmin(admin);
+        setEditedAdmin({
+            id: admin.id,
+            email: admin.email,
+            password: ''
+        });
         setShowEditModal(true);
     };
 
-    const saveEdit = () => {
-        setUsers(users.map((u) => (u.cpf === editedUser.cpf ? editedUser : u)));
-        setShowEditModal(false);
+    const saveEdit = async () => {
+        const emailError = validateEmail(editedAdmin.email);
+        if (emailError) {
+            setErrorMessage(emailError);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const dataToUpdate = { email: editedAdmin.email };
+            if (editedAdmin.password) {
+                dataToUpdate.password = editedAdmin.password;
+            }
+
+            await updateAdmin(editedAdmin.id, dataToUpdate); 
+            setShowEditModal(false);
+            setSuccessMessage("Administrador atualizado com sucesso!");
+            setShowSuccessAlert(true);
+            setUpdateAdminsTrigger(prev => prev + 1); 
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || error.message || "Erro ao atualizar administrador.");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 5000);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleDelete = (user) => {
-        setCurrentUser(user);
+    const handleDelete = (admin) => {
+        setCurrentAdmin(admin);
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = () => {
-        setUsers(users.filter((u) => u.cpf !== currentUser.cpf));
-        setShowDeleteModal(false);
+    const confirmDelete = async () => {
+        if (!currentAdmin) return;
+        setLoading(true);
+        try {
+            await deleteAdmin(currentAdmin.id);
+            setShowDeleteModal(false);
+            setSuccessMessage("Administrador excluído com sucesso!");
+            setShowSuccessAlert(true);
+            setUpdateAdminsTrigger(prev => prev + 1); 
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || error.message || "Erro ao excluir administrador.");
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 5000);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="container mt-5">
-            <div className="d-flex justify-content-end mb-3">
+            {showSuccessAlert && (
+                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Sucesso!</strong> {successMessage}
+                    <button type="button" className="btn-close" onClick={() => setShowSuccessAlert(false)} aria-label="Close"></button>
+                </div>
+            )}
+            {showErrorAlert && (
+                <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Erro!</strong> {errorMessage}
+                    <button type="button" className="btn-close" onClick={() => setShowErrorAlert(false)} aria-label="Close"></button>
+                </div>
+            )}
+
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2>Gerenciar Administradores</h2>
                 <button
                     className="btn"
-                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                    onClick={() => setShowCreateModal(true)}
+                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
+                    onClick={() => {
+                        setNewAdmin({ email: '', password: '' });
+                        setShowCreateModal(true);
+                    }}
+                    disabled={loading}
                 >
-                    + Novo Usuário
+                    + Novo Admin
                 </button>
             </div>
 
@@ -66,38 +173,46 @@ function Form() {
                     <table className="table table-bordered table-hover align-middle">
                         <thead className="table-dark sticky-top">
                             <tr>
-                                <th>CPF</th>
-                                <th>Nome</th>
+                                <th>ID</th>
                                 <th>Email</th>
                                 <th className="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {users.length === 0 ? (
+                            {loading && admins.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center">
-                                        Nenhum usuário cadastrado.
+                                    <td colSpan="3" className="text-center">
+                                        <div className="spinner-border text-success" role="status">
+                                            <span className="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : admins.length === 0 ? (
+                                <tr>
+                                    <td colSpan="3" className="text-center">
+                                        Nenhum administrador cadastrado.
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
-                                    <tr key={user.cpf}>
-                                        <td>{user.cpf}</td>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
+                                admins.map((admin) => (
+                                    <tr key={admin.id}>
+                                        <td>{admin.id}</td>
+                                        <td>{admin.email}</td>
                                         <td className="text-center">
                                             <div className="d-grid d-sm-flex justify-content-sm-center gap-2">
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                                    onClick={() => handleEdit(user)}
+                                                    style={{ backgroundColor: buttonColor.blue, color: 'white' }}
+                                                    onClick={() => handleEdit(admin)}
+                                                    disabled={loading}
                                                 >
                                                     Editar
                                                 </button>
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                                    onClick={() => handleDelete(user)}
+                                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
+                                                    onClick={() => handleDelete(admin)}
+                                                    disabled={loading}
                                                 >
                                                     Excluir
                                                 </button>
@@ -116,61 +231,39 @@ function Form() {
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Criar Novo Usuário</h5>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setShowCreateModal(false)}
-                                ></button>
+                                <h5 className="modal-title">Criar Novo Administrador</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)} disabled={loading}></button>
                             </div>
                             <div className="modal-body">
-                                <div className="mb-3">
-                                    <label className="form-label">CPF</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={newUser.cpf}
-                                        onChange={(e) =>
-                                            setNewUser({ ...newUser, cpf: e.target.value })
-                                        }
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Nome</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={newUser.name}
-                                        onChange={(e) =>
-                                            setNewUser({ ...newUser, name: e.target.value })
-                                        }
-                                    />
-                                </div>
                                 <div className="mb-3">
                                     <label className="form-label">Email</label>
                                     <input
                                         type="email"
                                         className="form-control"
-                                        value={newUser.email}
-                                        onChange={(e) =>
-                                            setNewUser({ ...newUser, email: e.target.value })
-                                        }
+                                        placeholder="exemplo@email.com"
+                                        value={newAdmin.email}
+                                        onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                                        disabled={loading}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Senha</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        placeholder="Senha"
+                                        value={newAdmin.password}
+                                        onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                    onClick={() => setShowCreateModal(false)}
-                                >
+                                <button className="btn" style={{ backgroundColor: buttonColor.red, color: 'white' }} onClick={() => setShowCreateModal(false)} disabled={loading}>
                                     Cancelar
                                 </button>
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                    onClick={handleCreate}
-                                >
+                                <button className="btn" style={{ backgroundColor: buttonColor.green, color: 'white' }} onClick={handleCreate} disabled={loading}>
+                                    {loading ? <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> : null}
                                     Criar
                                 </button>
                             </div>
@@ -179,65 +272,46 @@ function Form() {
                 </div>
             )}
 
-            {showEditModal && editedUser && (
+            {showEditModal && editedAdmin && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
-                                <h5 className="modal-title">Editar Usuário</h5>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setShowEditModal(false)}
-                                ></button>
+                                <h5 className="modal-title">Editar Administrador</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)} disabled={loading}></button>
                             </div>
                             <div className="modal-body">
-                                <div className="mb-3">
-                                    <label className="form-label">CPF</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={editedUser.cpf || ''}
-                                        readOnly
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Nome</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={editedUser.name || ''}
-                                        onChange={(e) =>
-                                            setEditedUser({ ...editedUser, name: e.target.value })
-                                        }
-                                    />
-                                </div>
                                 <div className="mb-3">
                                     <label className="form-label">Email</label>
                                     <input
                                         type="email"
                                         className="form-control"
-                                        value={editedUser.email || ''}
-                                        onChange={(e) =>
-                                            setEditedUser({ ...editedUser, email: e.target.value })
-                                        }
+                                        value={editedAdmin.email}
+                                        onChange={(e) => setEditedAdmin({ ...editedAdmin, email: e.target.value })}
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Nova Senha (deixe em branco para não alterar)</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        placeholder="Nova senha (opcional)"
+                                        value={editedAdmin.password}
+                                        onChange={(e) => setEditedAdmin({ ...editedAdmin, password: e.target.value })}
+                                        disabled={loading}
+                                        required
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
-                                    onClick={() => setShowEditModal(false)}
-                                >
+                                <button className="btn" style={{ backgroundColor: buttonColor.red, color: 'white' }} onClick={() => setShowEditModal(false)} disabled={loading}>
                                     Cancelar
                                 </button>
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
-                                    onClick={saveEdit}
-                                >
-                                    Salvar
+                                <button className="btn" style={{ backgroundColor: buttonColor.green, color: 'white' }} onClick={saveEdit} disabled={loading}>
+                                    {loading ? <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> : null}
+                                    Salvar Alterações
                                 </button>
                             </div>
                         </div>
@@ -245,37 +319,23 @@ function Form() {
                 </div>
             )}
 
-            {showDeleteModal && currentUser && (
+            {showDeleteModal && currentAdmin && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg">
                             <div className="modal-header">
                                 <h5 className="modal-title text-danger">Confirmar Exclusão</h5>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setShowDeleteModal(false)}
-                                ></button>
+                                <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)} disabled={loading}></button>
                             </div>
                             <div className="modal-body">
-                                <p>
-                                    Tem certeza que deseja excluir o usuário{' '}
-                                    <strong>{currentUser?.name}</strong>?
-                                </p>
+                                <p>Tem certeza que deseja excluir o administrador <strong>{currentAdmin?.email}</strong>?</p>
                             </div>
                             <div className="modal-footer">
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
-                                    onClick={() => setShowDeleteModal(false)}
-                                >
+                                <button className="btn" style={{ backgroundColor: buttonColor.blue, color: 'white' }} onClick={() => setShowDeleteModal(false)} disabled={loading}>
                                     Cancelar
                                 </button>
-                                <button
-                                    className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
-                                    onClick={confirmDelete}
-                                >
+                                <button className="btn" style={{ backgroundColor: buttonColor.red, color: 'white' }} onClick={confirmDelete} disabled={loading}>
+                                    {loading ? <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> : null}
                                     Excluir
                                 </button>
                             </div>

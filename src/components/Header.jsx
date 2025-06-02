@@ -1,7 +1,7 @@
 
 const Header = ({ pageName }) => {
     const logoff = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem("isLoggedIn");
         window.location.reload();
     }
 

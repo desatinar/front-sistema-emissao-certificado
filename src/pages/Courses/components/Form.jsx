@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { addCourse, editCourse, getAllCourses, deleteCourse } from '../../../api/admin';
-import formatDateForInput from '../../../utils/utils';
+import { formatDateForInput } from '../../../utils/utils';
 
 function Form() {
     const [courses, setCourses] = useState([]);
