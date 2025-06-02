@@ -1,25 +1,26 @@
 import { useState } from "react";
 import logo from "../../../assets/green-logo.png";
-import { Link } from "react-router";
+import { Link } from "react-router"; 
 import { login } from "../../../api/admin";
 
 const Form = ({ navigate }) => {
     const [form, setForm] = useState({ email: "", password: "" });
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const onChange = (e) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
-    }
+    };
 
     const handleLogin = (e) => {
         const loginInfo = {
             email: form.email,
             password: form.password,
             navigate,
-        }
-        login(e, loginInfo, setLoading)
-    }
+        };
+        login(e, loginInfo, setLoading);
+    };
 
     return (
         <div
@@ -53,15 +54,26 @@ const Form = ({ navigate }) => {
                     </div>
                     <div className="mb-3">
                         <label className="form-label">Senha</label>
-                        <input
-                            type="password"
-                            className="form-control rounded-3"
-                            name="password"
-                            value={form.password}
-                            onChange={onChange}
-                            disabled={loading}
-                            required
-                        />
+                        <div className="input-group">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className="form-control rounded-3 rounded-end"
+                                name="password"
+                                value={form.password}
+                                onChange={onChange}
+                                disabled={loading}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary rounded-start"
+                                onClick={() => setShowPassword(!showPassword)}
+                                disabled={loading}
+                                style={{ borderColor: '#F9844A' }}
+                            >
+                                {showPassword ? "Ocultar" : "Mostrar"}
+                            </button>
+                        </div>
                     </div>
                     <button
                         type="submit"
@@ -74,9 +86,9 @@ const Form = ({ navigate }) => {
                         disabled={loading}
                     >
                         {loading ? (
-                            <div class="text-center">
-                                <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Carregando...</span>
+                            <div className="text-center">
+                                <div className="spinner-border" role="status">
+                                    <span className="visually-hidden">Carregando...</span>
                                 </div>
                             </div>
                         ) : null}
