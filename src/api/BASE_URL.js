@@ -1,1 +1,1 @@
-export const BASE_URL = "http://desatinar.pythonanywhere.com/api/";
+export const BASE_URL = "https://desatinar.pythonanywhere.com/api/";

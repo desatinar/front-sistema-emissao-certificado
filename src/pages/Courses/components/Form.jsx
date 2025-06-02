@@ -1,42 +1,78 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { addCourse, editCourse, getAllCourses, deleteCourse } from '../../../api/admin';
+import formatDateForInput from '../../../utils/utils';
 
 function Form() {
-    const [courses, setCourses] = useState([
-        { id: 1, name: 'Psicologia', hourlyLoad: '10h', description: 'Curso de psicologia', date: new Date().toLocaleString() },
-        { id: 2, name: 'ADS', hourlyLoad: '20h', description: 'Curso de ADS', date: new Date().toLocaleString() },
-    ]);
-
+    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [updateCourses, setUpdateCourses] = useState(0);
+    const [newCourse, setNewCourse] = useState({ name: "", workload: "", description: "", courseDate: "" });
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [currentCourse, setCurrentCourse] = useState(null);
-    const [newCourse, setNewCourse] = useState({ name: '', hourlyLoad: '', description: '', date: new Date().toLocaleString() });
     const [editedCourse, setEditedCourse] = useState({});
-    const [nextId, setNextId] = useState(3);
 
-    const buttomColor = {
+    const buttonColor = {
         green: '#90BE6D',
         red: '#F94144',
         blue: '#577590'
-    }
+    };
 
-    const handleCreate = () => {
-        const newCourseWithId = { id: nextId, ...newCourse };
-        setCourses([...courses, newCourseWithId]);
-        setNextId(nextId + 1);
-        setEditedCourse({ name: '', hourlyLoad: '', description: '' });
-        setShowCreateModal(false);
+    useEffect(() => {
+        const getCourses = async () => {
+            const data = await getAllCourses(setLoading);
+            if (data) {
+                setCourses(data);
+            }
+        };
+
+        getCourses();
+    }, [updateCourses]);
+
+    const handleCreate = async () => {
+        try {
+            await addCourse(newCourse, setLoading);
+            setNewCourse({ name: "", workload: "", description: "", courseDate: "" });
+            setShowCreateModal(false);
+            setShowSuccessAlert(true);
+            setUpdateCourses(updateCourses + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(`Erro ao cadastrar curso: ${error.message}`);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
     };
 
     const handleEdit = (course) => {
         setCurrentCourse(course);
-        setEditedCourse(course);
+        setEditedCourse({
+            id: course.id,
+            name: course.name || '',
+            workload: course.workload || '',
+            description: course.description || '',
+            courseDate: formatDateForInput(course.course_date)
+        });
         setShowEditModal(true);
     };
 
-    const saveEdit = () => {
-        setCourses(courses.map((c) => (c.id === editedCourse.id ? editedCourse : c)));
-        setShowEditModal(false);
+    const saveEdit = async () => {
+        try {
+            await editCourse({ ...editedCourse, course_date: editedCourse.courseDate }, setLoading);
+            setCourses(courses.map((c) => (c.id === editedCourse.id ? { ...editedCourse, course_date: editedCourse.courseDate } : c)));
+            setShowEditModal(false);
+            setShowSuccessAlert(true);
+            setUpdateCourses(updateCourses + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(`Erro ao editar curso: ${error.message}`);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
     };
 
     const handleDelete = (course) => {
@@ -44,18 +80,54 @@ function Form() {
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = () => {
-        setCourses(courses.filter((c) => c.id !== currentCourse.id));
-        setShowDeleteModal(false);
+    const confirmDelete = async () => {
+        try {
+            await deleteCourse(currentCourse.id, setLoading);
+            setCourses(courses.filter((c) => c.id !== currentCourse.id));
+            setShowDeleteModal(false);
+            setShowSuccessAlert(true);
+            setUpdateCourses(updateCourses + 1);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        } catch (error) {
+            setErrorMessage(`Erro ao excluir curso: ${error.message}`);
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 3000);
+        }
     };
 
     return (
         <div className="container mt-5">
+            {showSuccessAlert && (
+                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Sucesso!</strong> Operação realizada com sucesso.
+                    <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                        onClick={() => setShowSuccessAlert(false)}
+                    ></button>
+                </div>
+            )}
+            {showErrorAlert && (
+                <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Erro!</strong> {errorMessage}
+                    <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                        onClick={() => setShowErrorAlert(false)}
+                    ></button>
+                </div>
+            )}
+
             <div className="d-flex justify-content-end mb-3">
                 <button
                     className="btn"
-                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                     onClick={() => setShowCreateModal(true)}
+                    disabled={loading}
                 >
                     + Novo Curso
                 </button>
@@ -75,7 +147,15 @@ function Form() {
                             </tr>
                         </thead>
                         <tbody>
-                            {courses.length === 0 ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center">
+                                        <div className="spinner-border text-success" role="status">
+                                            <span className="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : courses.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="text-center">
                                         Nenhum curso cadastrado.
@@ -86,22 +166,24 @@ function Form() {
                                     <tr key={course.id}>
                                         <td>{course.id}</td>
                                         <td>{course.name}</td>
-                                        <td>{course.hourlyLoad}</td>
+                                        <td>{course.workload}h</td>
                                         <td>{course.description}</td>
-                                        <td>{course.date}</td>
+                                        <td>{new Date(course.course_date).toLocaleDateString("pt-BR")}</td>
                                         <td className="text-center">
                                             <div className="d-grid d-sm-flex justify-content-sm-center gap-2">
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                                                     onClick={() => handleEdit(course)}
+                                                    disabled={loading}
                                                 >
                                                     Editar
                                                 </button>
                                                 <button
                                                     className="btn btn-sm"
-                                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                                     onClick={() => handleDelete(course)}
+                                                    disabled={loading}
                                                 >
                                                     Excluir
                                                 </button>
@@ -125,6 +207,7 @@ function Form() {
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowCreateModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
@@ -137,6 +220,7 @@ function Form() {
                                         onChange={(e) =>
                                             setNewCourse({ ...newCourse, name: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -144,10 +228,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={newCourse.hourlyLoad}
+                                        value={newCourse.workload}
                                         onChange={(e) =>
-                                            setNewCourse({ ...newCourse, hourlyLoad: e.target.value })
+                                            setNewCourse({ ...newCourse, workload: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -159,6 +244,7 @@ function Form() {
                                         onChange={(e) =>
                                             setNewCourse({ ...newCourse, description: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -166,26 +252,32 @@ function Form() {
                                     <input
                                         type="date"
                                         className="form-control"
-                                        value={newCourse.date}
+                                        value={newCourse.courseDate}
                                         onChange={(e) =>
-                                            setNewCourse({ ...newCourse, date: e.target.value })
+                                            setNewCourse({ ...newCourse, courseDate: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                     onClick={() => setShowCreateModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                                     onClick={handleCreate}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Criar
                                 </button>
                             </div>
@@ -204,6 +296,7 @@ function Form() {
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowEditModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
@@ -216,6 +309,7 @@ function Form() {
                                         onChange={(e) =>
                                             setEditedCourse({ ...editedCourse, name: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -223,10 +317,11 @@ function Form() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={editedCourse.hourlyLoad || ''}
+                                        value={editedCourse.workload || ''}
                                         onChange={(e) =>
-                                            setEditedCourse({ ...editedCourse, hourlyLoad: e.target.value })
+                                            setEditedCourse({ ...editedCourse, workload: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -238,6 +333,7 @@ function Form() {
                                         onChange={(e) =>
                                             setEditedCourse({ ...editedCourse, description: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -245,26 +341,32 @@ function Form() {
                                     <input
                                         type="date"
                                         className="form-control"
-                                        value={editedCourse.date ? new Date(editedCourse.date).toISOString().split('T')[0] : ''}
+                                        value={editedCourse.courseDate || ''}
                                         onChange={(e) =>
-                                            setEditedCourse({ ...editedCourse, date: e.target.value })
+                                            setEditedCourse({ ...editedCourse, courseDate: e.target.value })
                                         }
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.blue, color: 'white' }}
                                     onClick={() => setShowEditModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.green, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.green, color: 'white' }}
                                     onClick={saveEdit}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Salvar
                                 </button>
                             </div>
@@ -283,6 +385,7 @@ function Form() {
                                     type="button"
                                     className="btn-close"
                                     onClick={() => setShowDeleteModal(false)}
+                                    disabled={loading}
                                 ></button>
                             </div>
                             <div className="modal-body">
@@ -294,16 +397,21 @@ function Form() {
                             <div className="modal-footer">
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.blue, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.blue, color: 'white' }}
                                     onClick={() => setShowDeleteModal(false)}
+                                    disabled={loading}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     className="btn"
-                                    style={{ backgroundColor: buttomColor.red, color: 'white' }}
+                                    style={{ backgroundColor: buttonColor.red, color: 'white' }}
                                     onClick={confirmDelete}
+                                    disabled={loading}
                                 >
+                                    {loading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
                                     Excluir
                                 </button>
                             </div>
