@@ -4,6 +4,10 @@ Um sistema web moderno para gerenciamento e emissão de certificados educacionai
 
 🌐 **[Acesse o sistema aqui](https://front-sistema-emissao-certificado.vercel.app/)**
 
+### 🔑 Credenciais de Acesso (Demo)
+- **Email**: admin@email.com
+- **Senha**: admincertificados
+
 ## 📋 Descrição
 
 O Sistema de Emissão de Certificados é uma aplicação completa que permite a gestão de estudantes, cursos e certificados. O sistema oferece funcionalidades administrativas para emissão e validação pública de certificados através de códigos únicos.
