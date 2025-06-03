@@ -98,7 +98,7 @@ const Form = () => {
     };
 
     return (
-        <div className="min-vh-100 p-3" style={{ backgroundColor: buttonColor.formBackground }}>
+        <div className="min-vh-100 p-3">
             {showErrorAlert && (
                 <div className="alert alert-danger alert-dismissible fade show mb-3" role="alert">
                     <strong>Erro!</strong> {errorMessage}

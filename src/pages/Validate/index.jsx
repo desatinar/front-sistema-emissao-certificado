@@ -30,7 +30,6 @@ const ValidateCertificate = () => {
             return;
         }
 
-
         setLoading(true);
         setShowErrorAlert(false);
         setIsValid(null);
@@ -48,10 +47,6 @@ const ValidateCertificate = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handlePrint = () => {
-        window.print();
     };
 
     useEffect(() => {
@@ -116,13 +111,6 @@ const ValidateCertificate = () => {
                                 <p>Seu navegador não suporta a visualização de PDFs. <a href={pdfUrl} download>Baixe o PDF</a>.</p>
                             </object>
                         </div>
-                        <button
-                            className="btn text-white rounded-3 mt-4"
-                            style={{ backgroundColor: buttonColor.green, padding: '10px 20px' }}
-                            onClick={handlePrint}
-                        >
-                            Imprimir Certificado
-                        </button>
                     </div>
                 )}
 
